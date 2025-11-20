@@ -12,32 +12,39 @@ export default defineNuxtConfig({
     public: {
       baseUrl: process.env.BASE_URL,
       appName: process.env.APP_NAME || 'Core-Ledger'
-      
+
     },
-    // app: {
-    //   auth: {
-    //     api: {
-    //       baseUrl: process.env.BASE_URL,
-    //     },
-    //     pages: {
-    //       home: '/',
-    //       // signIn: '/auth/sign-in',
-    //       // signUp: '/auth/sign-up',
-    //     },
-    //     accessToken: {
-    //       maxAgeInSeconds: 1000,
-    //       sameSiteAttribute: true,
-    //     },
-    //     refreshToken: {
-    //       maxAgeInSeconds: 1000,
-    //       sameSiteAttribute: true,
-    //     },
-    //     session: {
-    //       enableRefreshOnWindowFocus: false,
-    //     },
-    //     globalAppMiddleware: false,
-    //   },
-    // },
+    app: {
+      head: {
+        link: [
+          {
+            rel: "stylesheet",
+            href: "https://fonts.googleapis.com/css?family=Inter:500|Manrope:600|Space+Grotesk:500,600&display=swap"
+          }
+        ]
+      },
+      auth: {
+        api: {
+          baseUrl: process.env.BASE_URL,
+        },
+        pages: {
+          home: '/',
+          signIn: '/auth/login',
+        },
+        accessToken: {
+          maxAgeInSeconds: 1000,
+          sameSiteAttribute: true,
+        },
+        refreshToken: {
+          maxAgeInSeconds: 1000,
+          sameSiteAttribute: true,
+        },
+        session: {
+          enableRefreshOnWindowFocus: false,
+        },
+        globalAppMiddleware: false,
+      },
+    },
   },
   modules: [
     '@nuxt/ui',
@@ -69,10 +76,10 @@ export default defineNuxtConfig({
      */
     componentDir: '@/components/ui'
   },
-   plugins: [
-    // '~/plugins/auth.plugin',
-     '~/plugins/element-plus.plugin',
-      '~/plugins/apexcharts.ts'],
+  plugins: [
+    '~/plugins/auth.plugin',
+    '~/plugins/element-plus.plugin',
+    '~/plugins/apexcharts.ts'],
 
   i18n: {
     vueI18n: '~/i18n.config.ts',
@@ -116,7 +123,7 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {
-       
+
           name: 'description',
           content: 'Wealify',
         },
@@ -155,26 +162,26 @@ export default defineNuxtConfig({
         },
         { property: 'og:type', content: 'website' },
         {
-         
+
           property: 'og:title',
           content: 'Wealify',
         },
         {
-        
+
           property: 'og:description',
           content: 'Wealify',
         },
         {
-       
+
           property: 'og:image',
           content: 'https://Wealify.com/social-card.png',
         },
         {
-   
+
           property: 'og:url',
           content: 'https://Wealify.com/social-card.png',
         },
-        {  name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:card', content: 'summary_large_image' },
       ],
       link: [
         {

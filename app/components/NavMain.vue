@@ -42,7 +42,7 @@ defineProps<{
         :default-open="item.isActive"
         class="group/collapsible"
       >
-        <SidebarMenuItem >
+        <SidebarMenuItem v-if="item.items && item.items.length" >
           <CollapsibleTrigger as-child >
             <SidebarMenuButton :tooltip="item.title">
               <component :is="item.icon" v-if="item.icon" />
@@ -54,13 +54,22 @@ defineProps<{
             <SidebarMenuSub>
               <SidebarMenuSubItem v-for="subItem in item.items" :key="subItem.title">
                 <SidebarMenuSubButton as-child>
-                  <ULink :to="subItem.url" >
+                  <NuxtLink :to="subItem.url" :class="item.isActive ? 'bg-accent text-accent-foreground' : ''" >
                     <span>{{ subItem.title }}</span>
-                  </ULink>
+                  </NuxtLink>
                 </SidebarMenuSubButton>
               </SidebarMenuSubItem>
             </SidebarMenuSub>
           </CollapsibleContent>
+        </SidebarMenuItem>
+
+         <SidebarMenuItem v-else  v-for="item in items" :key="item.title" :class="item.isActive ? 'bg-accent text-accent-foreground' : ''" >
+             <SidebarMenuButton as-child>
+              <NuxtLink :to="item.url">
+                <component :is="item.icon" />
+                <span>{{ item.title }}</span>
+              </NuxtLink>
+        </SidebarMenuButton>
         </SidebarMenuItem>
       </Collapsible>
     </SidebarMenu>

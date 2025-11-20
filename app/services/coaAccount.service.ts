@@ -1,6 +1,6 @@
 import type { ICoaAccount, IGetCoaAccountListParams } from "~/types/coaAccount"
 import { BaseService } from "./base.service"
-import type { ICommonListResponse } from "~/types/common"
+import type { ICommonListPaginateResponse, ICommonListResponse } from "~/types/common"
 
 export class CoaAccountService extends BaseService {
   private static _instance: CoaAccountService
@@ -17,7 +17,7 @@ export class CoaAccountService extends BaseService {
     super(config.public.baseUrl + '/coa-accounts')
   }
 
-   async getCoaAccountList(payload: IGetCoaAccountListParams): Promise<ICommonListResponse<ICoaAccount>> {
+   async getCoaAccountList(payload: IGetCoaAccountListParams): Promise<ICommonListPaginateResponse<ICoaAccount>> {
       return this.get('/list', {
         params: payload,
       })

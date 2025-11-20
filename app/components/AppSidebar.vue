@@ -30,9 +30,12 @@ import {
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: "icon",
 })
-
-// This is sample data.
-const data = {
+const route = useRoute()
+const isActive = (url: string) => {
+  return route.path === url
+}
+// This is sample data - make it reactive using computed
+const data = computed(() => ({
   user: {
     name: "shadcn",
     email: "m@example.com",
@@ -41,9 +44,9 @@ const data = {
   navMain: [
     {
       title: "Coa Accounts",
-      url: "#",
+      url: "/coa-account",
       icon: Users,
-      isActive: true,
+      isActive: isActive("/coa-account"),
       // items: [
       //   {
       //     title: "History",
@@ -63,23 +66,24 @@ const data = {
   ],
   projects: [
     {
-      name: "Design Engineering",
-      url: "/coa-account",
+      name: "Entries",
+      url: "/entries",
       icon: Frame,
+      isActive: isActive("/entries")
     },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
+    // {
+    //   name: "Sales & Marketing",
+    //   url: "#",
+    //   icon: PieChart,
+    // },
+    // {
+    //   name: "Travel",
+    //   url: "#",
+    //   icon: Map,
+    // },
   ],
-}
-  const config = useRuntimeConfig()
+}))
+const config = useRuntimeConfig()
 </script>
 
 <template>
@@ -89,7 +93,7 @@ const data = {
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" as-child>
             <a href="#">
-              <div class="flex aspect-square size-10 items-center justify-center rounded-lg  text-sidebar-primary-foreground">
+              <div class=" font-medium leading-[32px] not-italic relative shrink-0 text-[#07564d] text-[20px] text-center text-nowrap tracking-[-0.24px] whitespace-pre">
                  <ULink to="/"><img src="~/assets/img/logo/logo.svg" alt="" /></ULink>
               </div>
               <div class="flex flex-col gap-0.5 leading-none">

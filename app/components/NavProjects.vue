@@ -30,6 +30,7 @@ defineProps<{
     name: string
     url: string
     icon: LucideIcon
+    isActive: boolean
   }[]
 }>()
 
@@ -42,10 +43,10 @@ const { isMobile } = useSidebar()
     <SidebarMenu>
       <SidebarMenuItem v-for="item in projects" :key="item.name">
         <SidebarMenuButton as-child>
-          <ULink :to="item.url">
+          <NuxtLink :to="item.url" :class="item.isActive ? 'bg-accent text-accent-foreground' : ''">
             <component :is="item.icon" />
             <span>{{ item.name }}</span>
-          </ULink>
+          </NuxtLink>
         </SidebarMenuButton>
         <!-- <DropdownMenu>
           <DropdownMenuTrigger as-child>

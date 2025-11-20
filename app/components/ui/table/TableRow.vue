@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue"
-import { AvatarRoot } from "reka-ui"
 import { cn } from "@/lib/utils"
 
 const props = defineProps<{
@@ -9,10 +8,10 @@ const props = defineProps<{
 </script>
 
 <template>
-  <AvatarRoot
-    data-slot="avatar"
-    :class="cn('relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full', props.class)"
+  <tr
+    data-slot="table-row"
+    :class="cn('border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted', props.class)"
   >
     <slot />
-  </AvatarRoot>
+  </tr>
 </template>

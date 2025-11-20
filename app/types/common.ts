@@ -126,6 +126,21 @@ export interface ICommonListResponse<T> {
   success: boolean
 }
 
+
+export interface ICommonListPaginateResponse<T> {
+  code: HTTP_STATUS_CODE
+  data: {
+    items: T[]
+    limit: number
+    page: number
+    total: number
+    next_page?: number | null;
+    prev_page?: number | null;
+  }
+  message: string
+  success: boolean
+}
+
 // Dropdowns
 export interface IDropdownCardData {
   card_name: string
@@ -155,6 +170,14 @@ export enum FeeKey {
 export interface FeeDetail {
   type: FeeAmountType
   value: number
+}
+export interface IPaginate<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  next_page?: number | null;
+  prev_page?: number | null;
 }
 
 export type Fees = Record<FeeKey, FeeDetail>
