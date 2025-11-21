@@ -1,6 +1,6 @@
 import type { ICoaAccount, IGetCoaAccountListParams } from "~/types/coaAccount"
 import { BaseService } from "./base.service"
-import type { ICommonListPaginateResponse, ICommonListResponse } from "~/types/common"
+import type { ICommonListPaginateResponse } from "~/types/common"
 
 export class CoaAccountService extends BaseService {
   private static _instance: CoaAccountService

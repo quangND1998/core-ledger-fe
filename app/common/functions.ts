@@ -111,11 +111,21 @@ export enum ToastType {
 }
 
 export function showToast(type: ToastType, title: string) {
-  const toast = useToast()
-  toast.clear()
-  toast.add({
-    title: title,
-    avatar: { src: type === ToastType.SUCCESS ? '/icons/common/toast-success.svg' : '/icons/common/toast-failed.svg' },
-    timeout: 5000,
-  })
+  // Chỉ chạy trên client-side
+  if (import.meta.client) {
+    // Import trực tiếp từ vue-sonner
+    import('vue-sonner').then(({ toast }) => {
+      if (type === ToastType.SUCCESS) {
+        toast.success(title, {
+          duration: 5000,
+        })
+      } else {
+        toast.error(title, {
+          duration: 5000,
+        })
+      }
+    }).catch((error) => {
+      console.error('Error showing toast:', error)
+    })
+  }
 }

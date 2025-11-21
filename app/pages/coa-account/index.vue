@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed, reactive, onMounted } from 'vue';
 import { Search, ChevronDown, Plus, Filter, ChevronLeft, ChevronRight, Users } from "lucide-vue-next";
 import Button from "~/components/ui/button/Button.vue";
 import { Input } from "~/components/ui/input";
@@ -9,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCoaAccountStore } from '~/stores/coaAccount';
 import type { IGetCoaAccountListParams } from "~/types/coaAccount";
+import EditAccountCodeRulesModal from "~/components/coaccount/EditAccountCodeRulesModal.vue";
 
 definePageMeta({
   layout: 'sidebar',
@@ -211,6 +213,18 @@ const fetchAccountList = async (filterAccount: IGetCoaAccountListParams) => {
 onMounted(() => {
   fetchAccountList(filterAccount)
 });
+
+// Modal state for Edit Account Code Rules
+const isEditCodeRulesModalOpen = ref(false);
+
+const openEditCodeRulesModal = () => {
+  isEditCodeRulesModalOpen.value = true;
+};
+
+const handleSaveCodeRules = () => {
+  // Data đã được save trong store, không cần làm gì thêm
+  console.log('Account code rules saved successfully');
+};
 </script>
 
 <template>
@@ -281,7 +295,10 @@ onMounted(() => {
                 Export
                 <ChevronDown class="w-3.5 h-3.5" />
               </Button>
-              <Button class="w-[164px] h-auto gap-1.5 px-3 py-2.5 bg-[#07564d] rounded-[10px] font-button-s-14-medium font-[number:var(--button-s-14-medium-font-weight)] text-white text-[length:var(--button-s-14-medium-font-size)] tracking-[var(--button-s-14-medium-letter-spacing)] leading-[var(--button-s-14-medium-line-height)] [font-style:var(--button-s-14-medium-font-style)] hover:bg-[#07564d]/90">
+              <Button 
+                @click="openEditCodeRulesModal"
+                class="w-[164px] h-auto gap-1.5 px-3 py-2.5 bg-[#07564d] rounded-[10px] font-button-s-14-medium font-[number:var(--button-s-14-medium-font-weight)] text-white text-[length:var(--button-s-14-medium-font-size)] tracking-[var(--button-s-14-medium-letter-spacing)] leading-[var(--button-s-14-medium-line-height)] [font-style:var(--button-s-14-medium-font-style)] hover:bg-[#07564d]/90"
+              >
                 Create account
                 <Plus class="w-3.5 h-3.5" />
               </Button>
@@ -363,5 +380,12 @@ onMounted(() => {
         </TabsContent>
       </Tabs>
     </div>
+
+    <!-- Edit Account Code Rules Modal -->
+    <EditAccountCodeRulesModal
+      v-model:open="isEditCodeRulesModalOpen"
+      mode="edit"
+      @save="handleSaveCodeRules"
+    />
   </section>
 </template>
