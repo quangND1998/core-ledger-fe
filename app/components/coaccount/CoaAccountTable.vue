@@ -10,10 +10,75 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCoaAccountStore } from '~/stores/coaAccount';
 import type { IGetCoaAccountListParams } from "~/types/coaAccount";
 import type  { ICoaAccountResponse } from "~/types/coaAccount";
+import { useCoaAccountMapping } from '~/composables/common';
 
- defineProps<{
+defineProps<{
   accountData: ICoaAccountResponse
 }>()
+
+const { getStatusStyles, getTypeStyles } = useCoaAccountMapping();
+
+// Helper function để lấy class array cho type badge
+const getTypeBadgeClasses = (type: string) => {
+  const typeStyles = getTypeStyles(type);
+  const baseClasses = [
+    'h-6',
+    'px-2.5',
+    'py-0',
+    'rounded',
+    'border',
+    'border-solid',
+    'border-[#0000001a]',
+    'font-caption-l-12-medium',
+    'font-[number:var(--caption-l-12-medium-font-weight)]',
+    'text-[length:var(--caption-l-12-medium-font-size)]',
+    'tracking-[var(--caption-l-12-medium-letter-spacing)]',
+    'leading-[var(--caption-l-12-medium-line-height)]',
+    '[font-style:var(--caption-l-12-medium-font-style)]'
+  ];
+  
+  if (!typeStyles) {
+    return baseClasses;
+  }
+  
+  return [
+    typeStyles.typeBg,
+    ...baseClasses,
+    typeStyles.typeColor,
+    typeStyles.typeHover
+  ].filter(Boolean);
+};
+
+// Helper function để lấy class array cho status badge
+const getStatusBadgeClasses = (status: string) => {
+  const statusStyles = getStatusStyles(status);
+  const baseClasses = [
+    'h-6',
+    'px-2.5',
+    'py-0',
+    'rounded',
+    'border',
+    'border-solid',
+    'border-[#0000001a]',
+    'font-caption-l-12-medium',
+    'font-[number:var(--caption-l-12-medium-font-weight)]',
+    'text-[length:var(--caption-l-12-medium-font-size)]',
+    'tracking-[var(--caption-l-12-medium-letter-spacing)]',
+    'leading-[var(--caption-l-12-medium-line-height)]',
+    '[font-style:var(--caption-l-12-medium-font-style)]'
+  ];
+  
+  if (!statusStyles) {
+    return baseClasses;
+  }
+  
+  return [
+    statusStyles.statusBg,
+    ...baseClasses,
+    statusStyles.statusColor,
+    statusStyles.statusHover
+  ].filter(Boolean);
+};
 
 
 
@@ -85,15 +150,9 @@ import type  { ICoaAccountResponse } from "~/types/coaAccount";
                     {{ account.name }}
                 </TableCell>
                 <TableCell class="h-[52px] px-3 py-0">
-                    <!-- <Badge
-                        :class="[account.typeBg, 'h-6 px-2.5 py-0 rounded border border-solid border-[#0000001a] font-caption-l-12-medium font-[number:var(--caption-l-12-medium-font-weight)]', account.typeColor, 'text-[length:var(--caption-l-12-medium-font-size)] tracking-[var(--caption-l-12-medium-letter-spacing)] leading-[var(--caption-l-12-medium-line-height)] [font-style:var(--caption-l-12-medium-font-style)]', account.typeHover]">
-                        {{ account.type }}
-                    </Badge> -->
-                     <Badge
-                        :class="[ 'h-6 px-2.5 py-0 rounded border border-solid border-[#0000001a] font-caption-l-12-medium font-[number:var(--caption-l-12-medium-font-weight)]', 'text-[length:var(--caption-l-12-medium-font-size)] tracking-[var(--caption-l-12-medium-letter-spacing)] leading-[var(--caption-l-12-medium-line-height)] [font-style:var(--caption-l-12-medium-font-style)]']">
+                    <Badge :class="getTypeBadgeClasses(account.type)">
                         {{ account.type }}
                     </Badge>
-                    
                 </TableCell>
                 <TableCell
                     class="h-[52px] px-3 py-0 font-label-s-14-medium font-[number:var(--label-s-14-medium-font-weight)] text-[#00000080] text-[length:var(--label-s-14-medium-font-size)] tracking-[var(--label-s-14-medium-letter-spacing)] leading-[var(--label-s-14-medium-line-height)] [font-style:var(--label-s-14-medium-font-style)]">
@@ -108,12 +167,7 @@ import type  { ICoaAccountResponse } from "~/types/coaAccount";
                     {{ account.network }}
                 </TableCell>
                 <TableCell class="h-[52px] px-3 py-0">
-                    <!-- <Badge
-                        :class="[account.statusBg, 'h-6 px-2.5 py-0 rounded border border-solid border-[#0000001a] font-caption-l-12-medium font-[number:var(--caption-l-12-medium-font-weight)]', account.statusColor, 'text-[length:var(--caption-l-12-medium-font-size)] tracking-[var(--caption-l-12-medium-letter-spacing)] leading-[var(--caption-l-12-medium-line-height)] [font-style:var(--caption-l-12-medium-font-style)]', account.statusHover]">
-                        {{ account.status }}
-                    </Badge> -->
-                     <Badge
-                        :class="[ 'h-6 px-2.5 py-0 rounded border border-solid border-[#0000001a] font-caption-l-12-medium font-[number:var(--caption-l-12-medium-font-weight)]', 'text-[length:var(--caption-l-12-medium-font-size)] tracking-[var(--caption-l-12-medium-letter-spacing)] leading-[var(--caption-l-12-medium-line-height)] [font-style:var(--caption-l-12-medium-font-style)]']">
+                    <Badge :class="getStatusBadgeClasses(account.status)">
                         {{ account.status }}
                     </Badge>
                 </TableCell>

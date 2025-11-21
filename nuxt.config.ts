@@ -15,14 +15,6 @@ export default defineNuxtConfig({
 
     },
     app: {
-      head: {
-        link: [
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css?family=Inter:500|Manrope:600|Space+Grotesk:500,600&display=swap"
-          }
-        ]
-      },
       auth: {
         api: {
           baseUrl: process.env.BASE_URL,
@@ -186,7 +178,7 @@ export default defineNuxtConfig({
       link: [
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap',
+          href: 'https://fonts.googleapis.com/css?family=Inter:500|Manrope:600|Space+Grotesk:500,600&display=swap',
         },
         { rel: 'canonical', href: 'https://Wealify.com' },
         { rel: 'alternate', hreflang: 'en', href: 'https://Wealify.com' },

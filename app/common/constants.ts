@@ -143,3 +143,59 @@ export const removedAccentMap = {
   ỵ: 'y',
   đ: 'd',
 }
+
+// COA Account Status Configuration
+export const STATUS_ACCOUNT = [
+  {
+    status: "Active",
+    statusBg: "bg-[#e4f6d2]",
+    statusColor: "text-[#07564d]",
+    statusHover: "hover:bg-[#e4f6d2]",
+  },
+  {
+    status: "Lock",
+    statusBg: "bg-[#f7e1e1]",
+    statusColor: "text-[#641d1a]",
+    statusHover: "hover:bg-[#f7e1e1]",
+  },
+  {
+    status: "Inactive",
+    statusBg: "bg-[#efefef]",
+    statusColor: "text-[#000000b2]",
+    statusHover: "hover:bg-[#efefef]",
+  }
+] as const;
+
+// COA Account Type Configuration
+export const TYPES_ACCOUNT = [
+  {
+    type: "Asset",
+    typeBg: "bg-[#e4f6d2]",
+    typeColor: "text-[#07564d]",
+    typeHover: "hover:bg-[#e4f6d2]",
+  },
+  {
+    type: "Equity",
+    typeBg: "bg-[#fff1df]",
+    typeColor: "text-[#d2510e]",
+    typeHover: "hover:bg-[#fff1df]",
+  },
+  {
+    type: "Exp",
+    typeBg: "bg-[#daedff]",
+    typeColor: "text-[#192e53]",
+    typeHover: "hover:bg-[#daedff]",
+  },
+  {
+    type: "Liab",
+    typeBg: "bg-[#f7e1e1]",
+    typeColor: "text-[#641d1a]",
+    typeHover: "hover:bg-[#f7e1e1]",
+  },
+  {
+    type: "Rev",
+    typeBg: "bg-[#efefef]",
+    typeColor: "text-[#000000b2]",
+    typeHover: "hover:bg-[#efefef]",
+  }
+] as const;

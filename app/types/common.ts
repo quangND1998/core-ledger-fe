@@ -127,18 +127,18 @@ export interface ICommonListResponse<T> {
 }
 
 
-export interface ICommonListPaginateResponse<T> {
-  code: HTTP_STATUS_CODE
+export interface ICommonListPaginateResponse<T, D = {}> {
+  code: HTTP_STATUS_CODE;
   data: {
-    items: T[]
-    limit: number
-    page: number
-    total: number
+    items: T[];
+    limit: number;
+    page: number;
+    total: number;
     next_page?: number | null;
     prev_page?: number | null;
-  }
-  message: string
-  success: boolean
+  } & D; // ⬅️ Cho phép thêm field
+  message: string;
+  success: boolean;
 }
 
 // Dropdowns

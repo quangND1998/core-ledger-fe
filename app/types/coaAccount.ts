@@ -20,7 +20,7 @@ export interface IGetCoaAccountListParams {
   providers?: string[],
   networks: string[],
   status?: CoaAccountStatus[]
-  type?: CoaAccountTypes[]
+  types?: CoaAccountTypes[]
   sort?: string,
   currency?: string[]
 }
