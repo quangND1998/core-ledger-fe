@@ -288,7 +288,8 @@ const saveItemEdit = (section: keyof AccountCodeRules, index: number) => {
     
     if (isSimple) {
       // NETWORK and CURRENCY: name = value
-      const newValue = (item.name || item.value).toUpperCase();
+      // User edit value, sau đó set name = value
+      const newValue = item.value.toUpperCase();
       item.value = newValue;
       item.name = newValue; // Đảm bảo name = value
     } else {
@@ -325,6 +326,24 @@ const handleSaveSection = async (section: keyof AccountCodeRules) => {
 
   const currentItems = formData.value[section];
   const originalItems = originalData.value[section];
+  const isSimple = isSimpleInputSection(section);
+
+  // Với simple input, sync name = value cho TẤT CẢ items trước khi save
+  // (bao gồm cả items đang edit và items mới)
+  if (isSimple) {
+    const visibleItems = currentItems.filter(item => !item.is_delete);
+    visibleItems.forEach((item) => {
+      // Luôn đảm bảo name = value cho simple input
+      const newValue = (item.value || item.name || '').toUpperCase();
+      item.value = newValue;
+      item.name = newValue;
+      
+      // Nếu item đang được edit, tắt editing state
+      if (item.id && editingItems.value[section][item.id]) {
+        editingItems.value[section][item.id] = false;
+      }
+    });
+  }
 
   // Tạo payload: merge items hiện tại và items bị xóa
   const payloadItems: IRuleValue[] = [];

@@ -103,7 +103,7 @@ const getDisplayText = (item: IRuleValue): string => {
             <div v-if="isEditing(item)">
               <div v-if="isSimpleInput" class="space-y-2">
                 <Input
-                  v-model="item.name"
+                  v-model="item.value"
                   :placeholder="placeholder"
                   :class="['h-10', getItemError(item, index) ? 'border-red-500' : '']"
                   @keyup.enter="emit('save-item', index)"
