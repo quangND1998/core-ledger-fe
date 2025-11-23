@@ -42,7 +42,7 @@ export default defineNuxtConfig({
         session: {
           enableRefreshOnWindowFocus: false,
         },
-        globalAppMiddleware: false,
+        globalAppMiddleware: true,
       },
     },
   },
@@ -83,11 +83,18 @@ export default defineNuxtConfig({
 
   i18n: {
     vueI18n: '~/i18n.config.ts',
-    locales: [CommonLanguage.EN, CommonLanguage.VI], // used in URL path prefix
-    defaultLocale: CommonLanguage.EN, // default locale of your project for Nuxt pages and routings,
-    lazy: true,
+    locales: [
+      { code: 'en', iso: 'en-US', name: 'English' },
+      { code: 'vi', iso: 'vi-VN', name: 'Tiếng Việt' },
+    ],
+    defaultLocale: 'en',
+    strategy: 'no_prefix',
+    lazy: false,
     skipSettingLocaleOnNavigate: true,
     detectBrowserLanguage: false,
+    compilation: {
+      strictMessage: false,
+    },
   },
 
   veeValidate: {

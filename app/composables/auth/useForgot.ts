@@ -1,3 +1,5 @@
+import { validateEmail, validatePassword, validateConfirmPassword } from '~/utils/validator.util'
+
 interface ForgotFields {
   email: string
   pin: string
@@ -13,6 +15,7 @@ interface ForgotErrors {
 }
 
 export const useForgot = () => {
+  const { t } = useI18n()
   const router = useRouter()
   const step = ref<1 | 2 | 3>(1)
   const toast = useToast()
@@ -82,7 +85,7 @@ export const useForgot = () => {
   watch(
     () => fields.value.email,
     () => {
-      errors.value.email = validateEmail(fields.value.email)
+      errors.value.email = validateEmail(fields.value.email, t)
     },
   )
 
@@ -90,9 +93,9 @@ export const useForgot = () => {
     () => fields.value.password,
     () => {
       if (errors.value.confirmPassword) {
-        errors.value.confirmPassword = validateConfirmPassword(fields.value.confirmPassword, fields.value.password)
+        errors.value.confirmPassword = validateConfirmPassword(fields.value.confirmPassword, fields.value.password, t)
       }
-      errors.value.password = validatePassword(fields.value.password)
+      errors.value.password = validatePassword(fields.value.password, t)
     },
   )
 
@@ -100,9 +103,9 @@ export const useForgot = () => {
     () => fields.value.confirmPassword,
     () => {
       if (errors.value.password) {
-        errors.value.password = validatePassword(fields.value.password)
+        errors.value.password = validatePassword(fields.value.password, t)
       }
-      errors.value.confirmPassword = validateConfirmPassword(fields.value.confirmPassword, fields.value.password)
+      errors.value.confirmPassword = validateConfirmPassword(fields.value.confirmPassword, fields.value.password, t)
     },
   )
 

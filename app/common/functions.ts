@@ -117,11 +117,11 @@ export function showToast(type: ToastType, title: string) {
     import('vue-sonner').then(({ toast }) => {
       if (type === ToastType.SUCCESS) {
         toast.success(title, {
-          duration: 5000,
+          duration: 4000,
         })
       } else {
         toast.error(title, {
-          duration: 5000,
+          duration: 4000,
         })
       }
     }).catch((error) => {

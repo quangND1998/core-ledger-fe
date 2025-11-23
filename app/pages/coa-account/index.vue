@@ -296,6 +296,7 @@ const handleSaveCodeRules = () => {
                 <ChevronDown class="w-3.5 h-3.5" />
               </Button>
               <Button 
+                
                 @click="openEditCodeRulesModal"
                 class="w-[164px] h-auto gap-1.5 px-3 py-2.5 bg-[#07564d] rounded-[10px] font-button-s-14-medium font-[number:var(--button-s-14-medium-font-weight)] text-white text-[length:var(--button-s-14-medium-font-size)] tracking-[var(--button-s-14-medium-letter-spacing)] leading-[var(--button-s-14-medium-line-height)] [font-style:var(--button-s-14-medium-font-style)] hover:bg-[#07564d]/90"
               >

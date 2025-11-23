@@ -1,5 +1,6 @@
 import { navigateTo, defineNuxtRouteMiddleware } from '#imports'
 import { useProfileStore } from '~/stores/profile'
+import { useAuthStore } from '~/stores/auth'
 type MiddlewareMetaObject = {
   /** Whether to only allow unauthenticated users to access this page.
    *
@@ -45,9 +46,14 @@ export default defineNuxtRouteMiddleware(to => {
   const config = useRuntimeConfig()
   const nuxt = useNuxtApp()
   const profileStore = useProfileStore()
+  const authStore = useAuthStore()
   const isGuestMode = typeof metaAuth === 'object' && (metaAuth as MiddlewareMetaObject).unauthenticatedOnly
+  
+  // Check if user is authenticated (either by profile or access token)
+  const isAuthenticated = !!profileStore.profile || !!authStore.accessToken
+  
   // Guest mode happy path 1: Unauthenticated user is allowed to view page
-  if (isGuestMode && !profileStore.profile) {
+  if (isGuestMode && !isAuthenticated) {
     return
   }
 
@@ -56,7 +62,7 @@ export default defineNuxtRouteMiddleware(to => {
     return
   }
 
-  if (!!profileStore.profile) {
+  if (isAuthenticated) {
     // Guest mode happy path 2: Authenticated user should be directed to another page
     if (isGuestMode) {
       return navigateTo(
