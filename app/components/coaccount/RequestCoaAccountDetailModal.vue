@@ -199,9 +199,9 @@ watch(() => props.requestId, () => {
           <Card class="flex-1 bg-[#f4f7f6] rounded-[10px] border-0 shadow-none">
             <CardContent class="flex flex-col items-center gap-3 p-3.5">
               <!-- Account Name and Badges -->
-              <div class="flex flex-col items-start gap-0.5 w-full">
-                <h3 class="font-heading-m-20-medium font-[number:var(--heading-m-20-medium-font-weight)] text-black text-[length:var(--heading-m-20-medium-font-size)] tracking-[var(--heading-m-20-medium-letter-spacing)] leading-[var(--heading-m-20-medium-line-height)] [font-style:var(--heading-m-20-medium-font-style)]">
-                  {{ requestDetail.data?.name || '-' }}
+              <div class="flex flex-col items-start gap-3 w-full">
+                <h3 class="font-heading-m-20-medium font-bold  text-black text-[length:var(--heading-m-20-medium-font-size)] tracking-[var(--heading-m-20-medium-letter-spacing)] leading-[var(--heading-m-20-medium-line-height)] [font-style:var(--heading-m-20-medium-font-style)]">
+                  {{ requestDetail.code_analysis?.group_name ? `${requestDetail.code_analysis.group_name} Accounts` : (requestDetail.data?.name || '-') }}
                 </h3>
                 <div class="inline-flex items-center gap-1.5">
                   <Badge class="h-6 px-1.5 bg-white text-black border-[#0000001a] hover:bg-white [font-family:'Space_Grotesk',Helvetica] font-medium text-xs tracking-[0] leading-4">

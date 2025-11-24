@@ -249,12 +249,12 @@ const emit = defineEmits<{
                   class="w-7 h-7 rounded-md"
                   @click="emit('approve', request.id)"
                 >
-                  <CheckCircle class="w-4 h-4" />
+                  <CheckCircle class="w-4 h-4 text-green-500" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  class="w-7 h-7 rounded-md"
+                  class="w-7 h-7 rounded-md text-red-500"
                   @click="emit('reject', request.id)"
                 >
                   <X class="w-4 h-4" />

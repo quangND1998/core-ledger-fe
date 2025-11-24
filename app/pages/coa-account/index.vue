@@ -357,7 +357,7 @@ const handleRejectSubmit = async (requestId: string | number, reason: string) =>
 </script>
 
 <template>
-  <section class="flex items-start gap-2.5 pl-6 pr-12 py-6 flex-1 self-stretch grow">
+  <section class="flex items-start gap-2.5 pl-6 pr-12 py-3 flex-1 self-stretch grow">
     <Card
       className="flex flex-col items-center flex-1 self-stretch grow bg-white rounded-[20px] overflow-hidden border border-solid border-[#0000001a]">
       <CardContent className="p-0 w-full">
