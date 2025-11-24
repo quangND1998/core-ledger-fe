@@ -68,6 +68,18 @@ export class BaseService {
       },
       async error => {
         const originalRequest = error.config
+        
+        // If there's an error response, return it directly (don't wrap it)
+        if (error.response && error.response.data) {
+          // Return the error response data as-is
+          return Promise.reject({
+            response: {
+              data: error.response.data,
+            },
+            message: error.message,
+          })
+        }
+        
         if (error.response && error.response.status === HTTP_STATUS_CODE.UNAUTHORIZED && !originalRequest._retry) {
           originalRequest._retry = true
           const refreshToken = localStorage.getItem('refreshToken')
@@ -110,13 +122,9 @@ export class BaseService {
             }
           }
         }
-        return {
-          ...error.response,
-          data: {
-            ...error.response.data,
-            success: error.status === HTTP_STATUS_CODE.OK,
-          },
-        }
+        
+        // For other errors, reject with the error
+        return Promise.reject(error)
       },
     )
   }
@@ -136,10 +144,22 @@ export class BaseService {
 
   public async post(endpoint: string, data: any, options?: RequestOptions): Promise<any> {
     try {
-      const response: AxiosResponse = await this.client.post(endpoint, data, options)
+      const config: any = {}
+      if (options?.params) {
+        config.params = options.params
+      }
+      if (options?.headers) {
+        config.headers = options.headers
+      }
+      const response: AxiosResponse = await this.client.post(endpoint, data, config)
       return response.data
-    } catch (error) {
-      // return error as AxiosError
+    } catch (error: any) {
+      // If error has response data, return it
+      if (error?.response?.data) {
+        return error.response.data
+      }
+      // Otherwise throw the error
+      throw error
     }
   }
 

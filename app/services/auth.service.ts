@@ -1,4 +1,4 @@
-import type { LoginCredentials, LoginResponse } from '~/types/auth'
+import type { LoginCredentials, LoginResponse, LogoutResponse } from '~/types/auth'
 import { BaseService } from './base.service'
 
 export class AuthService extends BaseService {
@@ -18,6 +18,10 @@ export class AuthService extends BaseService {
 
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     return this.post('/login', credentials)
+  }
+
+  async logout(refreshToken: string): Promise<LogoutResponse> {
+    return this.post('/logout', { refresh_token: refreshToken })
   }
 
   async refreshToken(): Promise<any> {

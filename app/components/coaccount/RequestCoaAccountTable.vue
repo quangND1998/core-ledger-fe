@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Edit2, CheckCircle, X } from "lucide-vue-next";
+import { Edit2, CheckCircle, X, Eye } from "lucide-vue-next";
 import Button from "~/components/ui/button/Button.vue";
 import { Badge } from "~/components/ui/badge";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
@@ -76,6 +76,18 @@ const showActions = (request: any) => {
 const showOnlyEdit = (request: any) => {
   return request.request_status === ReqCoaAccountStatus.REJECTED;
 };
+
+// Helper function để check nếu show update button (CREATE + PENDING)
+const showUpdateButton = (request: any) => {
+  return request.request_type === ReqCoaAccountType.CREATE && request.request_status === ReqCoaAccountStatus.PENDING;
+};
+
+const emit = defineEmits<{
+  'update': [requestId: string | number]
+  'view': [requestId: string | number]
+  'approve': [requestId: string | number]
+  'reject': [requestId: string | number]
+}>()
 </script>
 
 <template>
@@ -114,7 +126,7 @@ const showOnlyEdit = (request: any) => {
     <TableBody>
       <TableRow
         v-for="(request, index) in requestData.items"
-        :key="request.id"
+        :key="index+1"
         :class="[
           'border-b border-[#efefef]',
           index % 2 === 0 ? 'bg-white hover:bg-[#f9f9f9]' : 'bg-[#f4f7f6] hover:bg-[#f4f7f6]/80'
@@ -124,7 +136,8 @@ const showOnlyEdit = (request: any) => {
         <TableCell class="w-[88px] h-[52px] px-3 py-0">
           <div class="flex items-center gap-1">
             <span class="font-label-s-14-medium font-[number:var(--label-s-14-medium-font-weight)] text-black text-[length:var(--label-s-14-medium-font-size)] tracking-[var(--label-s-14-medium-letter-spacing)] leading-[var(--label-s-14-medium-line-height)] [font-style:var(--label-s-14-medium-font-style)]">
-              {{ String(request.id).padStart(2, '0') }}
+              <!-- {{ String(request.id).padStart(2, '0') }} -->
+                  {{ index+1 }}
             </span>
             <div v-if="hasRedDot(request)" class="w-[5px] h-5">
               <div class="h-[5px] bg-[#ee443f] rounded-[2.5px]" />
@@ -209,11 +222,23 @@ const showOnlyEdit = (request: any) => {
         <!-- ACTION -->
         <TableCell class="w-[124px] h-[52px] px-3 py-0">
           <div class="inline-flex justify-end gap-2">
+            <!-- Eye icon to view detail - always visible -->
+            <Button
+              variant="ghost"
+              size="icon"
+              class="w-7 h-7 rounded-md"
+              @click="emit('view', request.id)"
+            >
+              <Eye class="w-4 h-4" />
+            </Button>
+
             <template v-if="showActions(request)">
               <Button
+                v-if="showUpdateButton(request)"
                 variant="ghost"
                 size="icon"
                 class="w-7 h-7 rounded-md"
+                @click="emit('update', request.id)"
               >
                 <Edit2 class="w-4 h-4" />
               </Button>
@@ -222,6 +247,7 @@ const showOnlyEdit = (request: any) => {
                   variant="ghost"
                   size="icon"
                   class="w-7 h-7 rounded-md"
+                  @click="emit('approve', request.id)"
                 >
                   <CheckCircle class="w-4 h-4" />
                 </Button>
@@ -229,6 +255,7 @@ const showOnlyEdit = (request: any) => {
                   variant="ghost"
                   size="icon"
                   class="w-7 h-7 rounded-md"
+                  @click="emit('reject', request.id)"
                 >
                   <X class="w-4 h-4" />
                 </Button>
@@ -239,7 +266,6 @@ const showOnlyEdit = (request: any) => {
               </template>
             </template>
             <template v-else>
-              <div class="w-7 h-7 rounded-md opacity-0" />
               <div class="w-7 h-7 rounded-md opacity-0" />
               <div class="w-7 h-7 rounded-md opacity-0" />
             </template>

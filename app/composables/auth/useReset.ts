@@ -1,3 +1,5 @@
+import { validatePassword, validateConfirmPassword } from '~/utils/validator.util'
+
 interface ResetFields {
   pin: string
   password: string
@@ -11,6 +13,7 @@ interface ResetErrors {
 }
 
 export const useReset = () => {
+  const { t } = useI18n()
   const { profile } = useProfileStore()
   const router = useRouter()
   const step = ref<1 | 2 | 3>(1)
@@ -77,9 +80,9 @@ export const useReset = () => {
     () => fields.value.password,
     () => {
       if (errors.value.confirmPassword) {
-        errors.value.confirmPassword = validateConfirmPassword(fields.value.confirmPassword, fields.value.password)
+        errors.value.confirmPassword = validateConfirmPassword(fields.value.confirmPassword, fields.value.password, t)
       }
-      errors.value.password = validatePassword(fields.value.password)
+      errors.value.password = validatePassword(fields.value.password, t)
     },
   )
 
@@ -87,9 +90,9 @@ export const useReset = () => {
     () => fields.value.confirmPassword,
     () => {
       if (errors.value.password) {
-        errors.value.password = validatePassword(fields.value.password)
+        errors.value.password = validatePassword(fields.value.password, t)
       }
-      errors.value.confirmPassword = validateConfirmPassword(fields.value.confirmPassword, fields.value.password)
+      errors.value.confirmPassword = validateConfirmPassword(fields.value.confirmPassword, fields.value.password, t)
     },
   )
 

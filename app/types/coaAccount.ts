@@ -1,4 +1,5 @@
 import type { IPaginate } from "./common"
+import { description } from '../layouts/sidebar.vue';
 
 
 export enum CoaAccountStatus {
@@ -40,6 +41,7 @@ export interface ICoaAccount {
   created_at: string
   updated_at: string,
   tags?: string[],
+  description: string|''
   metadata?: any
   // TODO: add more fields as needed
 }

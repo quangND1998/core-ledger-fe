@@ -28,6 +28,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { useLogout } from '~/composables/auth/useLogout'
 
 const props = defineProps<{
   user: {
@@ -38,6 +39,11 @@ const props = defineProps<{
 }>()
 
 const { isMobile } = useSidebar()
+const { logout } = useLogout()
+
+const handleLogout = async () => {
+  await logout()
+}
 </script>
 
 <template>
@@ -105,7 +111,7 @@ const { isMobile } = useSidebar()
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem @click="handleLogout">
             <LogOut />
             Log out
           </DropdownMenuItem>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import '~/assets/css/auth.scss'
 </script>
 
 <template>

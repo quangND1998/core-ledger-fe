@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { Search, ChevronDown, Plus, Filter, ChevronLeft, ChevronRight, Users } from "lucide-vue-next";
+import { Edit2 } from "lucide-vue-next";
 import Button from "~/components/ui/button/Button.vue";
-import { Input } from "~/components/ui/input";
 import { Badge } from "~/components/ui/badge";
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useCoaAccountStore } from '~/stores/coaAccount';
-import type { IGetCoaAccountListParams } from "~/types/coaAccount";
 import type  { ICoaAccountResponse } from "~/types/coaAccount";
 import { useCoaAccountMapping } from '~/composables/common';
+
+const emit = defineEmits<{
+  'edit': [accountId: number]
+}>()
 
 defineProps<{
   accountData: ICoaAccountResponse
@@ -126,6 +124,10 @@ const getStatusBadgeClasses = (status: string) => {
                     class="h-12 px-3 py-0 font-caption-l-12-semibold font-[number:var(--caption-l-12-semibold-font-weight)] text-[#00000080] text-[length:var(--caption-l-12-semibold-font-size)] tracking-[var(--caption-l-12-semibold-letter-spacing)] leading-[var(--caption-l-12-semibold-line-height)] [font-style:var(--caption-l-12-semibold-font-style)]">
                     STATUS
                 </TableHead>
+                <TableHead
+                    class="w-[124px] h-12 px-3 py-0 font-caption-l-12-semibold font-[number:var(--caption-l-12-semibold-font-weight)] text-[#00000080] text-[length:var(--caption-l-12-semibold-font-size)] tracking-[var(--caption-l-12-semibold-letter-spacing)] leading-[var(--caption-l-12-semibold-line-height)] [font-style:var(--caption-l-12-semibold-font-style)]">
+                    ACTION
+                </TableHead>
             </TableRow>
         </TableHeader>
         <TableBody>
@@ -133,7 +135,7 @@ const getStatusBadgeClasses = (status: string) => {
                 :class="['bg-white', 'border-b border-[#efefef]', 'hover:bg-[#f9f9f9]']">
                 <TableCell
                     class="w-[52px] h-[52px] px-3 py-0 font-label-s-14-medium font-[number:var(--label-s-14-medium-font-weight)] text-black text-[length:var(--label-s-14-medium-font-size)] tracking-[var(--label-s-14-medium-letter-spacing)] leading-[var(--label-s-14-medium-line-height)] [font-style:var(--label-s-14-medium-font-style)]">
-                    {{ account.id }}
+                    {{ index+1 }}
                 </TableCell>
                 <TableCell
                     class="h-[52px] px-3 py-0 [font-family:'Space_Grotesk',Helvetica] font-semibold text-[#07564c] text-sm tracking-[-0.17px] leading-5">
@@ -170,6 +172,18 @@ const getStatusBadgeClasses = (status: string) => {
                     <Badge :class="getStatusBadgeClasses(account.status)">
                         {{ account.status }}
                     </Badge>
+                </TableCell>
+                <TableCell class="w-[124px] h-[52px] px-3 py-0">
+                    <div class="inline-flex justify-end gap-2">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            class="w-7 h-7 rounded-md"
+                            @click="emit('edit', parseInt(account.id))"
+                        >
+                            <Edit2 class="w-4 h-4" />
+                        </Button>
+                    </div>
                 </TableCell>
             </TableRow>
         </TableBody>

@@ -6,6 +6,7 @@ import { AuthService } from '~/services/auth.service'
 import { CommonLogger } from '~/common/logger'
 import { AUTH_DATA_STORED_KEY } from '~/common/constants'
 import { useI18n } from 'vue-i18n'
+import { useProfileStore } from '~/stores/profile'
 
 export const useAuthStore = defineStore('auth', {
   state: (): { accessToken?: string; refreshToken?: string; refreshInterval?: NodeJS.Timeout } => ({
@@ -14,23 +15,31 @@ export const useAuthStore = defineStore('auth', {
     refreshInterval: undefined, // Store the interval ID
   }),
   actions: {
-    setTokens(accessToken: string, refreshToken: string) {
+    setTokens(accessToken: string, refreshToken: string, expiresAt?: string) {
       this.accessToken = accessToken
       this.refreshToken = refreshToken
 
       if (process.client) {
         const accessDecoded: TokenPayload = jwtDecode(accessToken)
         const refreshDecoded: TokenPayload = jwtDecode(refreshToken)
+        
+        // Use expires_at from API if provided, otherwise use JWT exp
+        let accessTokenExpiresAt = accessDecoded.exp
+        if (expiresAt) {
+          const expiresDate = new Date(expiresAt)
+          accessTokenExpiresAt = Math.floor(expiresDate.getTime() / 1000)
+        }
+        
         const authData: AuthData = {
           accessToken,
-          accessTokenExpiresAt: accessDecoded.exp,
+          accessTokenExpiresAt,
           refreshToken,
           refreshTokenExpiresAt: refreshDecoded.exp,
         }
         localStorage.setItem(AUTH_DATA_STORED_KEY, JSON.stringify(authData))
 
         // Start periodic refresh check
-        // this.startRefreshCheck()
+        this.startRefreshCheck()
       }
     },
     loadTokens() {
@@ -60,28 +69,57 @@ export const useAuthStore = defineStore('auth', {
     },
     async login(credentials: LoginCredentials, t?: (key: string) => string) {
       try {
-        const result = {
-          success:true,
-        }
         const response = await AuthService.instance.login(credentials)
-        if (response.success) {
-          this.setTokens(response.data.access_token, response.data.access_token)
-          return result
+        
+        // Check if login is successful (response.success or response.status === true, and data exists)
+        const isSuccess = (response.success === true || response.status === true) && response.data !== null
+        
+        if (isSuccess && response.data) {
+          const { access_token, refresh_token, expires_at, user } = response.data
+          
+          // Set tokens
+          this.setTokens(access_token, refresh_token, expires_at)
+          
+          // Store user data in profile store
+          const profileStore = useProfileStore()
+          if (profileStore.setUserData) {
+            profileStore.setUserData(user)
+          }
+          
+          return {
+            success: true,
+          }
         }
+        
+        // Handle error response
         return {
-          success:false,
-          message:response.message || t('common.toast.error')
+          success: false,
+          message: response.message || response.error || (t ? t('auth.login.failed') : 'Invalid email or password'),
         }
-      }catch (error) {
-        return  {
-          success:false,
-          message: t ? t('common.toast.error') : 'Ops.Something went wrong',
+      } catch (error: any) {
+        // Handle network errors or other exceptions
+        const errorMessage = error?.response?.data?.message 
+          || error?.response?.data?.error 
+          || error?.message 
+          || (t ? t('auth.login.failed') : 'Something went wrong')
+        
+        return {
+          success: false,
+          message: errorMessage,
         }
       }
     },
-    logout() {
-      useProfileStore().resetProfile()
-      this.clearTokens()
+    async logout() {
+      try {
+        if (this.refreshToken) {
+          await AuthService.instance.logout(this.refreshToken)
+        }
+      } catch (error) {
+        CommonLogger.instance.error('Logout API call failed:', error)
+      } finally {
+        useProfileStore().resetProfile()
+        this.clearTokens()
+      }
     },
     async refreshTokens(): Promise<boolean> {
       if (!this.refreshToken) return false
@@ -89,7 +127,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await AuthService.instance.refreshToken()
         if (response.code === 200) {
-          this.setTokens(response.data.access_token, response.data.refresh_token)
+          this.setTokens(response.data.access_token, response.data.refresh_token, response.data.expires_at)
           return true
         }
         return false

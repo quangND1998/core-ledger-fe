@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ChevronDown, Plus, Filter, Users } from "lucide-vue-next";
+
+import { ref, computed, reactive, onMounted } from 'vue';
+import { Search, ChevronDown, Plus, Filter, ChevronLeft, ChevronRight, Users } from "lucide-vue-next";
 import Button from "~/components/ui/button/Button.vue";
 import { Badge } from "~/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
@@ -10,6 +12,14 @@ import RequestCoaAccountTable from "~/components/coaccount/RequestCoaAccountTabl
 import { useCoaAccountStore } from '~/stores/coaAccount';
 import {Card, CardContent } from "~/components/ui/card";
 import { useReqCoaAccountStore } from "~/stores/requestCoaAccount";
+import type { IGetCoaAccountListParams } from "~/types/coaAccount";
+import EditAccountCodeRulesModal from "~/components/coaccount/EditAccountCodeRulesModal.vue";
+import CreateAccountModal from "~/components/coaccount/CreateAccountModal.vue";
+import RequestCoaAccountDetailModal from "~/components/coaccount/RequestCoaAccountDetailModal.vue";
+import RejectModal from "~/components/coaccount/RejectModal.vue";
+import Swal from 'sweetalert2';
+import { requestCoaAccountService } from '~/services/request-account.service';
+import { useCoaAccountRequestStore } from '~/stores/coaAccountRequest';
 
 definePageMeta({
   layout: 'sidebar',
@@ -20,6 +30,7 @@ definePageMeta({
 
 const store = useCoaAccountStore();
 const storeRequestAccount = useReqCoaAccountStore()
+const coaAccountRequestStore = useCoaAccountRequestStore()
 const coaAccountResponse = computed(() => store.coaAccountData)
 const requestCoaAccountResponse = computed(() => storeRequestAccount.requestCoaAccountData)
 const activeTab = ref("account-list");
@@ -175,6 +186,174 @@ onMounted(() => {
   fetchRequestAccount()
 
 });
+
+// Modal state for Edit Account Code Rules
+const isEditCodeRulesModalOpen = ref(false);
+
+const openEditCodeRulesModal = () => {
+  isEditCodeRulesModalOpen.value = true;
+};
+
+// Handle View Account Code Rules - using store
+const handleViewAccountCodeRules = () => {
+  coaAccountRequestStore.openViewRulesModal();
+};
+
+const handleSaveCodeRules = () => {
+  // Data đã được save trong store, không cần làm gì thêm
+  console.log('Account code rules saved successfully');
+};
+
+// Modal state for Create/Edit Account
+const isCreateAccountModalOpen = ref(false);
+const modalMode = ref<'CREATE' | 'EDIT'>('CREATE');
+const modalRequestId = ref<string | number | undefined>(undefined);
+const modalAccountId = ref<number | undefined>(undefined);
+
+const openCreateAccountModal = () => {
+  modalMode.value = 'CREATE';
+  modalRequestId.value = undefined;
+  modalAccountId.value = undefined;
+  isCreateAccountModalOpen.value = true;
+};
+
+const handleCreateAccountSuccess = () => {
+  // Refresh request account list after successful creation/update
+  fetchRequestAccount();
+  fetchAccountList();
+};
+
+// Handle edit account from COA Account table
+const handleEditAccount = (accountId: number) => {
+  modalMode.value = 'EDIT';
+  modalAccountId.value = accountId;
+  modalRequestId.value = undefined;
+  isCreateAccountModalOpen.value = true;
+  // TODO: For EDIT from COA Account, we might need to create EDIT request first
+  // For now, we'll need to implement API to get account detail and populate form
+};
+
+// Handle update request from Request COA Account table
+const handleUpdateRequest = (requestId: string | number) => {
+  modalMode.value = 'EDIT';
+  modalRequestId.value = requestId;
+  modalAccountId.value = undefined;
+  isCreateAccountModalOpen.value = true;
+};
+
+// Modal state for Request Detail
+const isRequestDetailModalOpen = ref(false);
+const selectedRequestId = ref<string | number | undefined>(undefined);
+
+// Modal state for Reject
+const isRejectModalOpen = ref(false);
+const rejectRequestId = ref<string | number | undefined>(undefined);
+
+// Handle view request detail
+const handleViewRequest = (requestId: string | number) => {
+  selectedRequestId.value = requestId;
+  isRequestDetailModalOpen.value = true;
+};
+
+// Handle approve request
+const handleApproveRequest = async (requestId: string | number) => {
+  // Close detail modal if open to avoid z-index conflicts
+  if (isRequestDetailModalOpen.value) {
+    isRequestDetailModalOpen.value = false
+    // Wait a bit for modal to close
+    await new Promise(resolve => setTimeout(resolve, 200))
+  }
+  
+  try {
+    const result = await Swal.fire({
+      title: 'Confirm Approval',
+      text: 'Are you sure you want to approve this request?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#07564d',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, approve it!',
+      cancelButtonText: 'Cancel',
+      allowOutsideClick: true,
+      allowEscapeKey: true,
+      allowEnterKey: true,
+      focusCancel: false,
+      customClass: {
+        popup: 'swal2-popup-custom',
+        container: 'swal2-container-custom'
+      }
+    });
+
+    if (result.isConfirmed) {
+      const response = await requestCoaAccountService.approveRequestCoaAccount(requestId);
+      
+      if (response.success) {
+        await Swal.fire({
+          title: 'Approved!',
+          text: 'The request has been approved successfully.',
+          icon: 'success',
+          confirmButtonColor: '#07564d'
+        });
+        // Refresh request list
+        fetchRequestAccount();
+        fetchAccountList();
+      } else {
+        await Swal.fire({
+          title: 'Error!',
+          text: (response as any).error || response.message || 'Failed to approve request.',
+          icon: 'error',
+          confirmButtonColor: '#07564d'
+        });
+      }
+    }
+  } catch (error: any) {
+    await Swal.fire({
+      title: 'Error!',
+      text: error.message || 'Failed to approve request.',
+      icon: 'error',
+      confirmButtonColor: '#07564d'
+    });
+  }
+};
+
+// Handle reject request
+const handleRejectRequest = (requestId: string | number) => {
+  rejectRequestId.value = requestId;
+  isRejectModalOpen.value = true;
+};
+
+// Handle reject submit
+const handleRejectSubmit = async (requestId: string | number, reason: string) => {
+  try {
+    const response = await requestCoaAccountService.rejectRequestCoaAccount(requestId, reason);
+    
+    if (response.success) {
+      await Swal.fire({
+        title: 'Rejected!',
+        text: 'The request has been rejected successfully.',
+        icon: 'success',
+        confirmButtonColor: '#07564d'
+      });
+      // Refresh request list
+      fetchRequestAccount();
+      fetchAccountList();
+    } else {
+      await Swal.fire({
+        title: 'Error!',
+        text: (response as any).error || response.message || 'Failed to reject request.',
+        icon: 'error',
+        confirmButtonColor: '#07564d'
+      });
+    }
+  } catch (error: any) {
+    await Swal.fire({
+      title: 'Error!',
+      text: error.message || 'Failed to reject request.',
+      icon: 'error',
+      confirmButtonColor: '#07564d'
+    });
+  }
+};
 </script>
 
 <template>
@@ -221,7 +400,10 @@ onMounted(() => {
                   Export
                   <ChevronDown class="w-3.5 h-3.5" />
                 </Button>
+
+             
                 <Button
+                  @click="openCreateAccountModal"
                   class="w-[164px] h-auto gap-1.5 px-3 py-2.5 bg-[#07564d] rounded-[10px] font-button-s-14-medium font-[number:var(--button-s-14-medium-font-weight)] text-white text-[length:var(--button-s-14-medium-font-size)] tracking-[var(--button-s-14-medium-letter-spacing)] leading-[var(--button-s-14-medium-line-height)] [font-style:var(--button-s-14-medium-font-style)] hover:bg-[#07564d]/90">
                   Create account
                   <Plus class="w-3.5 h-3.5" />
@@ -244,7 +426,7 @@ onMounted(() => {
                   isFilterOpen ? 'flex-1 min-w-[600px]' : 'w-full'
                 ]" style="will-change: flex-basis;">
                   <div class="w-full overflow-x-auto">
-                    <CoaccountCoaAccountTable :account-data="coaAccountResponse" />
+                    <CoaccountCoaAccountTable :account-data="coaAccountResponse" @edit="handleEditAccount" />
                   </div>
                 </div>
                 <FilterPanel v-model:open="isFilterOpen" @apply="handleFilterApply" @reset="handleFilterReset" />
@@ -265,13 +447,20 @@ onMounted(() => {
               <Button
                 variant="outline"
                 class="w-[212px] h-auto border border-solid border-[#0000001a] px-3 py-2.5 rounded-[10px] font-button-s-14-medium font-[number:var(--button-s-14-medium-font-weight)] text-black text-[length:var(--button-s-14-medium-font-size)] text-center tracking-[var(--button-s-14-medium-letter-spacing)] leading-[var(--button-s-14-medium-line-height)] [font-style:var(--button-s-14-medium-font-style)]"
+                @click="handleViewAccountCodeRules"
               >
                 View Account Code Rule
               </Button>
             </div>
 
             <div class="flex flex-col items-end gap-4 px-8 py-6 flex-1 grow w-full bg-white">
-              <RequestCoaAccountTable :request-data="requestCoaAccountResponse" />
+              <RequestCoaAccountTable 
+                :request-data="requestCoaAccountResponse" 
+                @update="handleUpdateRequest"
+                @view="handleViewRequest"
+                @approve="handleApproveRequest"
+                @reject="handleRejectRequest"
+              />
               
               <Pagination
                 :pagination="paginationDataRequest"
@@ -283,5 +472,38 @@ onMounted(() => {
         </Tabs>
       </CardContent>
     </Card>
+
+    <EditAccountCodeRulesModal
+      v-model:open="isEditCodeRulesModalOpen"
+      mode="edit"
+      @save="handleSaveCodeRules"
+    />
+
+    <CreateAccountModal
+      v-model:open="isCreateAccountModalOpen"
+      :mode="modalMode"
+      :request-id="modalRequestId"
+      :account-id="modalAccountId"
+      :edit-from-account="modalMode === 'EDIT' && modalAccountId !== undefined"
+      @success="handleCreateAccountSuccess"
+    />
+
+    <RequestCoaAccountDetailModal
+      v-model:open="isRequestDetailModalOpen"
+      :request-id="selectedRequestId"
+      @approve="handleApproveRequest"
+      @reject="handleRejectRequest"
+    />
+
+    <RejectModal
+      v-model:open="isRejectModalOpen"
+      :request-id="rejectRequestId"
+      @reject="handleRejectSubmit"
+    />
+
+    <!-- View Account Code Rules Modal (from store) -->
+    <EditAccountCodeRulesModal
+      v-model:open="coaAccountRequestStore.isViewRulesModalOpen"
+    />
   </section>
 </template>

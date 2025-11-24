@@ -1,6 +1,8 @@
 import { CommonLogger } from '~/common/logger'
 import { useHandleRequest } from '../common/useHandleRequest'
 import { showToast, ToastType } from '~/common/functions'
+import { validateEmail, validatePassword } from '~/utils/validator.util'
+import { useAuthStore } from '~/stores/auth'
 
 interface SignInFields {
   email: string
@@ -14,8 +16,9 @@ interface SignInFieldErrors {
 
 export const useSignIn = () => {
   const { t } = useI18n()
+
+
   const { login } = useAuthStore()
-  const { fetchProfile } = useProfileStore()
   const router = useRouter()
 
   const fields = ref<SignInFields>({
@@ -29,12 +32,12 @@ export const useSignIn = () => {
   })
 
   const { isLoading, handleRequest } = useHandleRequest(async () => {
-      const result = await login(fields.value,t)
-      if (result.success){
-        await fetchProfile()
+      const result = await login(fields.value, t)
+      if (result.success) {
+        showToast(ToastType.SUCCESS, t('auth.login.success') || 'Login successful')
         router.push('/')
-      }else{
-        showToast(ToastType.FAILED,result.message)
+      } else {
+        showToast(ToastType.FAILED, result.message || t('auth.login.failed') || 'Login failed')
         return
       }
   })
@@ -51,14 +54,14 @@ export const useSignIn = () => {
   watch(
     () => fields.value.email,
     () => {
-      errors.value.email = validateEmail(fields.value.email)
+      errors.value.email = validateEmail(fields.value.email, t)
     },
   )
 
   watch(
     () => fields.value.password,
     () => {
-      errors.value.password = validatePassword(fields.value.password)
+      errors.value.password = validatePassword(fields.value.password, t)
     },
   )
 

@@ -16,7 +16,8 @@ export const useAvatar = () => {
       'bg-[#e4f6d2]',
       'bg-[#0000001a]',
     ];
-    return colors[index % colors.length];
+    const colorIndex = Math.abs(index) % colors.length;
+    return colors[colorIndex] || 'bg-[#0000001a]';
   };
 
   /**
@@ -37,7 +38,7 @@ export const useAvatar = () => {
    * @param name - Tên đầy đủ (ví dụ: "Nguyen Van A" hoặc "John Doe")
    * @returns Initials (ví dụ: "NA" hoặc "JD")
    */
-  const getInitials = (name: string): string => {
+  const getInitials = (name: string | undefined | null): string => {
     if (!name) return '';
     const parts = name.trim().split(' ').filter(part => part.length > 0);
     if (parts.length >= 2) {
@@ -68,4 +69,5 @@ export const useAvatar = () => {
     getAvatarBgFromString,
   };
 };
+
 
