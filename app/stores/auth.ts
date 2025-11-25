@@ -6,7 +6,6 @@ import { AuthService } from '~/services/auth.service'
 import { CommonLogger } from '~/common/logger'
 import { AUTH_DATA_STORED_KEY } from '~/common/constants'
 import { useI18n } from 'vue-i18n'
-import { useProfileStore } from '~/stores/profile'
 
 export const useAuthStore = defineStore('auth', {
   state: (): { accessToken?: string; refreshToken?: string; refreshInterval?: NodeJS.Timeout } => ({
@@ -70,11 +69,7 @@ export const useAuthStore = defineStore('auth', {
     async login(credentials: LoginCredentials, t?: (key: string) => string) {
       try {
         const response = await AuthService.instance.login(credentials)
-        
-        // Check if login is successful (response.success or response.status === true, and data exists)
-        const isSuccess = (response.success === true || response.status === true) && response.data !== null
-        
-        if (isSuccess && response.data) {
+        if (response.success && response.data) {
           const { access_token, refresh_token, expires_at, user } = response.data
           
           // Set tokens
@@ -90,22 +85,14 @@ export const useAuthStore = defineStore('auth', {
             success: true,
           }
         }
-        
-        // Handle error response
         return {
           success: false,
-          message: response.message || response.error || (t ? t('auth.login.failed') : 'Invalid email or password'),
+          message: response.message || response.error || (t ? t('common.toast.error') : 'Login failed'),
         }
       } catch (error: any) {
-        // Handle network errors or other exceptions
-        const errorMessage = error?.response?.data?.message 
-          || error?.response?.data?.error 
-          || error?.message 
-          || (t ? t('auth.login.failed') : 'Something went wrong')
-        
         return {
           success: false,
-          message: errorMessage,
+          message: error?.response?.data?.message || error?.message || (t ? t('common.toast.error') : 'Something went wrong'),
         }
       }
     },
