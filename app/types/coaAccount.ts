@@ -52,3 +52,19 @@ export interface ICoaAccount {
 
 // Các response kế thừa base paginate
 export type ICoaAccountResponse = IPaginate<ICoaAccount>;
+
+// Export types
+export interface IExportCoaAccountParams {
+  select: string[];
+  query: {
+    search?: string;
+    status?: string[];
+    types?: string[];
+    currency?: string[];
+    networks?: string[];
+    providers?: string[];
+    sort?: string;
+    limit?: number;
+    page?: number;
+  };
+}

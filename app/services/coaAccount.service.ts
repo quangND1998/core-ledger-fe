@@ -1,6 +1,7 @@
-import type { ICoaAccount, IGetCoaAccountListParams } from "~/types/coaAccount"
+import type { ICoaAccount, IGetCoaAccountListParams, IExportCoaAccountParams } from "~/types/coaAccount"
 import { BaseService } from "./base.service"
 import type { ICommonListPaginateResponse } from "~/types/common"
+import { AUTH_DATA_STORED_KEY } from "~/common/constants"
 
 export class CoaAccountService extends BaseService {
   private static _instance: CoaAccountService
@@ -147,6 +148,35 @@ export class CoaAccountService extends BaseService {
         exists: false,
         error: error.message || 'Failed to check account number'
       }
+    }
+  }
+
+  async exportCoaAccounts(payload: IExportCoaAccountParams): Promise<Blob> {
+    try {
+      const config = useRuntimeConfig()
+      const tokens = localStorage.getItem(AUTH_DATA_STORED_KEY)
+      let parsedTokens = tokens ? JSON.parse(tokens) : undefined
+      const accessToken = parsedTokens?.accessToken
+
+      const response = await fetch(`${config.public.baseUrl}/coa-accounts/export`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Export failed: ${response.statusText} - ${errorText}`)
+      }
+
+      const blob = await response.blob()
+      return blob
+    } catch (error: any) {
+      console.error('Error exporting accounts:', error)
+      throw error
     }
   }
 

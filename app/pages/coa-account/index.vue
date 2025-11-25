@@ -17,9 +17,11 @@ import EditAccountCodeRulesModal from "~/components/coaccount/EditAccountCodeRul
 import CreateAccountModal from "~/components/coaccount/CreateAccountModal.vue";
 import RequestCoaAccountDetailModal from "~/components/coaccount/RequestCoaAccountDetailModal.vue";
 import RejectModal from "~/components/coaccount/RejectModal.vue";
+import ExportModal from "~/components/coaccount/ExportModal.vue";
 import Swal from 'sweetalert2';
 import { requestCoaAccountService } from '~/services/request-account.service';
 import { useCoaAccountRequestStore } from '~/stores/coaAccountRequest';
+import { coaAccountService } from '~/services/coaAccount.service';
 
 definePageMeta({
   layout: 'sidebar',
@@ -354,6 +356,121 @@ const handleRejectSubmit = async (requestId: string | number, reason: string) =>
     });
   }
 };
+
+// Export functionality
+const isExportModalOpen = ref(false);
+
+const handleExport = async (exportData: { fields: string[]; filters: any }) => {
+  try {
+    if (exportData.fields.length === 0) {
+      await Swal.fire({
+        title: 'Warning!',
+        text: 'Please select at least one field to export.',
+        icon: 'warning',
+        confirmButtonColor: '#07564d'
+      });
+      return;
+    }
+
+    // Show loading
+    Swal.fire({
+      title: 'Exporting...',
+      text: 'Please wait while we prepare your export file.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom'
+      },
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Build query from filters
+    const query: any = {
+      limit: 10000,
+    };
+
+    // Add search if exists
+    if (payload.value.search) {
+      query.search = payload.value.search;
+    }
+
+    // Add filters from modal
+    if (exportData.filters.statuses && exportData.filters.statuses.length > 0) {
+      query.status = exportData.filters.statuses;
+    }
+    if (exportData.filters.types && exportData.filters.types.length > 0) {
+      query.types = exportData.filters.types;
+    }
+    if (exportData.filters.currencies && exportData.filters.currencies.length > 0) {
+      query.currency = exportData.filters.currencies;
+    }
+    if (exportData.filters.networks && exportData.filters.networks.length > 0) {
+      query.networks = exportData.filters.networks;
+    }
+    if (exportData.filters.providers && exportData.filters.providers.length > 0) {
+      query.providers = exportData.filters.providers;
+    }
+    if (payload.value.sort) {
+      query.sort = payload.value.sort;
+    }
+
+    const exportPayload = {
+      select: exportData.fields,
+      query: query,
+    };
+
+    const blob = await coaAccountService.exportCoaAccounts(exportPayload);
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `coa-accounts-${new Date().toISOString().split('T')[0]}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // Close modal and loading, then show success
+    isExportModalOpen.value = false;
+    Swal.close();
+    // Đợi một chút để modal đóng hoàn toàn
+    await new Promise(resolve => setTimeout(resolve, 200));
+    await Swal.fire({
+      title: 'Exported!',
+      text: 'Your export file has been downloaded successfully.',
+      icon: 'success',
+      confirmButtonColor: '#07564d',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom'
+      }
+    });
+  } catch (error: any) {
+    Swal.close();
+    // Đóng modal export trước khi hiển thị error để tránh conflict z-index
+    isExportModalOpen.value = false;
+    // Đợi một chút để modal đóng hoàn toàn
+    await new Promise(resolve => setTimeout(resolve, 200));
+    await Swal.fire({
+      title: 'Error!',
+      text: error.message || 'Failed to export accounts.',
+      icon: 'error',
+      confirmButtonColor: '#07564d',
+      customClass: {
+        container: 'swal2-container-custom',
+        popup: 'swal2-popup-custom'
+      }
+    });
+  }
+};
+
+const openExportModal = () => {
+  isExportModalOpen.value = true;
+};
 </script>
 
 <template>
@@ -395,7 +512,9 @@ const handleRejectSubmit = async (requestId: string | number, reason: string) =>
             <div class="flex h-20 items-center justify-between px-8 py-0 w-full border-b border-[#dcdcdc]">
               <SearchInput v-model="searchValue" placeholder="Search accounts" @search="handleSearch" />
               <div class="inline-flex items-center gap-2">
-                <Button variant="outline"
+                <Button 
+                  variant="outline"
+                  @click="openExportModal"
                   class="w-[120px] h-auto gap-1.5 px-3 py-2.5 rounded-[10px] border border-solid border-[#0000001a] font-button-s-14-medium font-[number:var(--button-s-14-medium-font-weight)] text-black text-[length:var(--button-s-14-medium-font-size)] tracking-[var(--button-s-14-medium-letter-spacing)] leading-[var(--button-s-14-medium-line-height)] [font-style:var(--button-s-14-medium-font-style)]">
                   Export
                   <ChevronDown class="w-3.5 h-3.5" />
@@ -504,6 +623,12 @@ const handleRejectSubmit = async (requestId: string | number, reason: string) =>
     <!-- View Account Code Rules Modal (from store) -->
     <EditAccountCodeRulesModal
       v-model:open="coaAccountRequestStore.isViewRulesModalOpen"
+    />
+
+    <!-- Export Modal -->
+    <ExportModal
+      v-model:open="isExportModalOpen"
+      @export="handleExport"
     />
   </section>
 </template>

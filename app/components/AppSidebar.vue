@@ -26,6 +26,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import { useProfileStore } from '~/stores/profile'
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: "icon",
@@ -34,11 +35,12 @@ const route = useRoute()
 const isActive = (url: string) => {
   return route.path === url
 }
+const profileStore = useProfileStore()
 // This is sample data - make it reactive using computed
 const data = computed(() => ({
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: profileStore.data?.full_name,
+    email: profileStore.data?.email,
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [

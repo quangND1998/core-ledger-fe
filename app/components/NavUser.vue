@@ -32,15 +32,16 @@ import { useLogout } from '~/composables/auth/useLogout'
 
 const props = defineProps<{
   user: {
-    name: string
-    email: string
-    avatar: string
+    name?: string
+    email?: string
+    avatar?: string
   }
 }>()
 
 const { isMobile } = useSidebar()
 const { logout } = useLogout()
-
+const { getAvatarBg, getAvatarColor, getInitials } = useAvatar()
+const randomNumber = Math.floor(Math.random() * 5);
 const handleLogout = async () => {
   await logout()
 }
@@ -55,12 +56,17 @@ const handleLogout = async () => {
             size="lg"
             class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
-            <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarImage :src="user.avatar" :alt="user.name" />
-              <AvatarFallback class="rounded-lg">
-                CN
-              </AvatarFallback>
-            </Avatar>
+                         <Avatar :class="['h-8 w-8 rounded-lg', getAvatarBg(randomNumber)]">
+                <AvatarFallback
+                  :class="[
+                    getAvatarBg(randomNumber),
+                    getAvatarColor(getAvatarBg(randomNumber)),
+                    'font-caption-m-10-semibold font-[number:var(--caption-m-10-semibold-font-weight)] text-[length:var(--caption-m-10-semibold-font-size)] tracking-[var(--caption-m-10-semibold-letter-spacing)] leading-[var(--caption-m-10-semibold-line-height)] [font-style:var(--caption-m-10-semibold-font-style)]'
+                  ]"
+                >
+                  {{ getInitials(user.name || '') }}
+                </AvatarFallback>
+              </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
               <span class="truncate font-medium">{{ user.name }}</span>
               <span class="truncate text-xs">{{ user.email }}</span>
@@ -76,10 +82,21 @@ const handleLogout = async () => {
         >
           <DropdownMenuLabel class="p-0 font-normal">
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-              <Avatar class="h-8 w-8 rounded-lg">
+              <!-- <Avatar class="h-8 w-8 rounded-lg">
                 <AvatarImage :src="user.avatar" :alt="user.name" />
                 <AvatarFallback class="rounded-lg">
                   CN
+                </AvatarFallback>
+              </Avatar> -->
+                            <Avatar :class="['h-8 w-8 rounded-lg', getAvatarBg(randomNumber)]">
+                <AvatarFallback
+                  :class="[
+                    getAvatarBg(randomNumber),
+                    getAvatarColor(getAvatarBg(randomNumber)),
+                    'font-caption-m-10-semibold font-[number:var(--caption-m-10-semibold-font-weight)] text-[length:var(--caption-m-10-semibold-font-size)] tracking-[var(--caption-m-10-semibold-letter-spacing)] leading-[var(--caption-m-10-semibold-line-height)] [font-style:var(--caption-m-10-semibold-font-style)]'
+                  ]"
+                >
+                  {{ getInitials(user.name || '') }}
                 </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
