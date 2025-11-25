@@ -45,7 +45,6 @@ export class BaseService {
           window.location.href = '/auth/sign-in' // Redirect to login page
           return Promise.reject('Refresh token expired')
         }
-
         if (accessToken && !isAccessTokenExpired) {
           config.headers['Authorization'] = `Bearer ${accessToken}`
         } else if (refreshToken && !isRefreshTokenExpired) {
